@@ -18,6 +18,7 @@ jobs:
       security-events: write
 
     steps:
+
       # ---------- CHECKOUT ----------
       - name: Checkout code
         uses: actions/checkout@v4
@@ -37,6 +38,17 @@ jobs:
           name: gitleaks-report
           path: results.sarif
           if-no-files-found: warn
+
+      # ---------- BUILD JAVA AVEC MAVEN ----------
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Build application with Maven
+        run: mvn --batch-mode clean package
 
       # ---------- PARTIE II : DOCKER ----------
       - name: Login to Docker Hub
@@ -87,6 +99,6 @@ jobs:
           severity: 'CRITICAL,HIGH'
           ignore-unfixed: true
 
-      # ---------- PARTIE III : DOCKER HUB ----------
+      # ---------- PARTIE III : PUBLICATION DOCKER HUB ----------
       - name: Push Docker image
         run: docker push $DOCKER_IMAGE_NAME
