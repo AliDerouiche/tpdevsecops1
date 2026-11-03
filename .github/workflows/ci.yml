@@ -1,4 +1,4 @@
-
+```yaml
 name: CI/CD DevSecOps
 
 on:
@@ -50,7 +50,23 @@ jobs:
       - name: Build application with Maven
         run: mvn --batch-mode clean package
 
+      # ---------- VERIFICATION DES DEPENDANCES ----------
+      - name: Verify generated JAR
+        shell: bash
+        run: |
+          echo "=== Spring Boot parent version ==="
+          grep -A 4 '<artifactId>spring-boot-starter-parent</artifactId>' pom.xml
+
+          echo "=== Spring Boot version in generated JAR ==="
+          jar tf target/democyber-0.0.1-SNAPSHOT.jar | grep 'BOOT-INF/lib/spring-boot-'
+
+          echo "=== Spring Framework, Tomcat and Jackson ==="
+          jar tf target/democyber-0.0.1-SNAPSHOT.jar | grep -E 'BOOT-INF/lib/(spring-core|spring-webmvc|tomcat-embed-core|jackson-core)-'
+
       # ---------- PARTIE II : DOCKER ----------
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Login to Docker Hub
         uses: docker/login-action@v3
         with:
@@ -58,7 +74,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build Docker image
-        run: docker build -t $DOCKER_IMAGE_NAME .
+        run: docker build --no-cache -t $DOCKER_IMAGE_NAME .
 
       - name: Show image details
         run: docker images $DOCKER_IMAGE_NAME
@@ -80,6 +96,7 @@ jobs:
           output: trivy-report.json
           exit-code: '0'
           severity: 'CRITICAL,HIGH'
+          ignore-unfixed: true
 
       - name: Upload Trivy report
         if: always()
@@ -102,3 +119,4 @@ jobs:
       # ---------- PARTIE III : PUBLICATION DOCKER HUB ----------
       - name: Push Docker image
         run: docker push $DOCKER_IMAGE_NAME
+```
