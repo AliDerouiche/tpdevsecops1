@@ -3,7 +3,8 @@ name: CI/CD DevSecOps
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
 
 env:
   DOCKER_IMAGE_NAME: alidr369/democyber:latest
