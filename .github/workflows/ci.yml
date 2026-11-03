@@ -61,7 +61,7 @@ jobs:
 
       # ---------- TRIVY : RAPPORT JSON ----------
       - name: Trivy scan (JSON report)
-        uses: aquasecurity/trivy-action@0.20.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: ${{ env.DOCKER_IMAGE_NAME }}
           format: json
@@ -79,7 +79,7 @@ jobs:
 
       # ---------- TRIVY : SECURITY GATE ----------
       - name: Trivy scan (security gate)
-        uses: aquasecurity/trivy-action@0.20.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: ${{ env.DOCKER_IMAGE_NAME }}
           format: table
